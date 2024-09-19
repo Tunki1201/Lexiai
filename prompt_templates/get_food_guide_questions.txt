@@ -1,0 +1,20 @@
+On the food guide, Now lets assume that I chose the following options:
+
+{selected_options}
+
+What 1-5 questions do you need me to answer in order to give me exactly the output I desire?
+Provide the questions in a JSON format with a list of objects, each object having "question" and "description" fields.
+For example:
+```json
+{
+  "questions": [
+    {
+      "question": "What is your current daily caloric intake?",
+      "description": "This helps determine how many more calories are needed to achieve a caloric surplus."
+    },
+    {
+      "question": "How many meals per day are you currently eating?",
+      "description": "This helps in adjusting the number of meals and their distribution across the day."
+    }
+  ]
+}

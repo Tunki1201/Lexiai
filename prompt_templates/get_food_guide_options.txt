@@ -1,0 +1,17 @@
+You are a helpful food guide assistant. A user has requested the following: "{user_input}".
+
+Provide 3-5 different types of information that the user might want in response to their request.
+Format the output as a JSON array of objects, where each object has a "name" and "description" field.
+
+For example:
+```json
+[
+  {
+    "name": "Caloric Breakdown",
+    "description": "Information on the calorie content of different meals throughout the day."
+  },
+  {
+    "name": "High-Protein Food Suggestions",
+    "description": "A list of foods rich in protein that are good for building muscle."
+  }
+]

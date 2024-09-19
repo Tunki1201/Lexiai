@@ -1,0 +1,18 @@
+Here is the answer now give me the final output.
+
+{user_answers}
+
+Provide the output in a JSON format with fields corresponding to the selected options.
+For example, if "Caloric Breakdown", "Meal Timing and Frequency", "High-Protein Foods", "Carbohydrate-Rich Foods", and "Healthy Fats" were selected, the output might look like this:
+```json
+{
+  "caloric_breakdown": {
+    "Breakfast": "400 calories",
+    "Lunch": "600 calories",
+    // ... more meals
+  },
+  "meal_timing_and_frequency": "Eat 5-6 meals per day, including a pre-workout meal and a post-workout meal.",
+  "high_protein_foods": ["chicken breast", "eggs", "lean beef", "fish", "tofu"],
+  "carbohydrate_rich_foods": ["oats", "brown rice", "sweet potatoes", "whole-grain pasta"],
+  "healthy_fats": ["avocados", "nuts", "olive oil", "fatty fish"]
+}
