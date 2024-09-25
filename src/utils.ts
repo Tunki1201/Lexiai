@@ -6,20 +6,20 @@ import { ModelType, PromptTemplate } from './config';
 import * as dotenv from 'dotenv';
 
 // Load environment variables from .env file  
-require('dotenv').config();  
+require('dotenv').config();
 
 const PROJECT_ROOT = '';  // Set your project root if needed
 const PROMPTS = path.join(PROJECT_ROOT, 'prompt_templates');
 
 // Initialize OpenAI client with the API key from the environment variable  
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); 
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function getPromptTemplate(promptTemplate: PromptTemplate): Promise<string> {
     const filePath = path.join(PROMPTS, promptTemplate);
     return fs.promises.readFile(filePath, 'utf-8');
 }
 
-export async function getFoodGuideOptions(userInput: string): Promise<FoodGuideOptions> {
+export async function getFoodGuideOptions(userInput: string, condition: string): Promise<FoodGuideOptions> {
     const promptTemplate = await getPromptTemplate(PromptTemplate.GET_FOOD_GUIDE_OPTIONS);
     const prompt = promptTemplate.replace('user_input', userInput);
 
@@ -47,7 +47,14 @@ export async function getFoodGuideOptions(userInput: string): Promise<FoodGuideO
     }
 }
 
-export async function getFoodGuideQuestions(selectedOptions: string[]): Promise<FoodGuideQuestions> {
+export async function getFoodGuideQuestions(selectedOptions: string[], condition: string): Promise<FoodGuideQuestions> {
+
+    // """Gets the final output based on selected options and user answers using ChatGPT."""
+    let system_message = "You are a helpful food guide assistant."
+    if (condition) {
+        system_message += "\nHere are some of the conditions that you must keep while generating a response:\n{condition}"
+
+    }
     const selectedOptionsStr = selectedOptions.join(', ');
     const promptTemplate = await getPromptTemplate(PromptTemplate.GET_FOOD_GUIDE_QUESTIONS);
     const prompt = promptTemplate.replace('selected_options', selectedOptionsStr);
@@ -55,7 +62,7 @@ export async function getFoodGuideQuestions(selectedOptions: string[]): Promise<
     const response = await client.chat.completions.create({
         model: ModelType.GPT4O,
         messages: [
-            { role: 'system', content: 'You are a helpful food guide assistant.' },
+            { role: 'system', content: system_message },
             { role: 'user', content: prompt },
         ],
     });
@@ -77,8 +84,8 @@ export async function getFoodGuideQuestions(selectedOptions: string[]): Promise<
     }
 }
 
-export async function getFinalOutput(selectedOptions: string[], userAnswers: string[]): Promise<FoodGuideFinalOutput> {
-    const foodGuideQuestions = await getFoodGuideQuestions(selectedOptions);
+export async function getFinalOutput(selectedOptions: string[], userAnswers: string[], condition: string): Promise<FoodGuideFinalOutput> {
+    const foodGuideQuestions = await getFoodGuideQuestions(selectedOptions, condition);
 
     const userAnswersStr = foodGuideQuestions.questions.map((q, i) => `${q.question}: "${userAnswers[i]}"`).join('\n');
     const promptTemplate = await getPromptTemplate(PromptTemplate.GET_FINAL_OUTPUT);
