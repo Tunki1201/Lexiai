@@ -21,12 +21,12 @@ const FoodGuideQuestions = zod_1.z.object({
 exports.FoodGuideQuestions = FoodGuideQuestions;
 // Schema for FoodGuideFinalOutput  
 const FoodGuideFinalOutput = zod_1.z.object({
-    caloric_breakdown: zod_1.z.record(zod_1.z.string(), zod_1.z.string()).optional(),
-    meal_timing_and_frequency: zod_1.z.string().optional(),
-    high_protein_foods: zod_1.z.array(zod_1.z.string()).optional(),
-    carbohydrate_rich_foods: zod_1.z.array(zod_1.z.string()).optional(),
-    healthy_fats: zod_1.z.array(zod_1.z.string()).optional(),
-    sample_meal_plan: zod_1.z.record(zod_1.z.string(), zod_1.z.array(zod_1.z.string())).optional(),
+    caloric_breakdown: zod_1.z.record(zod_1.z.string(), zod_1.z.string()).nullable(),
+    meal_timing_and_frequency: zod_1.z.string().nullable(),
+    high_protein_foods: zod_1.z.array(zod_1.z.string()).nullable(),
+    carbohydrate_rich_foods: zod_1.z.array(zod_1.z.string()).nullable(),
+    healthy_fats: zod_1.z.array(zod_1.z.string()).nullable(),
+    sample_meal_plan: zod_1.z.record(zod_1.z.string(), zod_1.z.array(zod_1.z.string())).nullable(),
     // Add other fields as needed for different output types  
 }).describe("The final output of the food guide including various nutritional details.");
 exports.FoodGuideFinalOutput = FoodGuideFinalOutput;
