@@ -9,17 +9,17 @@ async function main() {
     // Step 1: Get food guide options (dynamically generated)  
     const foodGuideOptions = await getFoodGuideOptions(userInput, condition);
     console.log("Available Options:");
-    foodGuideOptions.options.forEach(option => {
+    foodGuideOptions.options.forEach((option: any) => {
         console.log(`- ${option.name}: ${option.description}`);
     });
 
     // Step 2: User selects options (replace with actual user selection)  
-    const selectedOptions: string[] = foodGuideOptions.options.map(option => option.name); // Example selection  
+    const selectedOptions: string[] = foodGuideOptions.options.map((option: any) => option.name); // Example selection  
 
     // Step 3: Get questions based on selected options  
     const foodGuideQuestions = await getFoodGuideQuestions(selectedOptions, condition);
     console.log("\nQuestions to Ask:");
-    foodGuideQuestions.questions.forEach(questionObj => {
+    foodGuideQuestions.questions.forEach((questionObj: any) => {
         console.log(`- ${questionObj.question}`);
         console.log(`  (${questionObj.description})`);
     });

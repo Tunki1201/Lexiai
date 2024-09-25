@@ -42,15 +42,15 @@ function main() {
         // Step 1: Get food guide options (dynamically generated)  
         const foodGuideOptions = yield (0, utils_1.getFoodGuideOptions)(userInput, condition);
         console.log("Available Options:");
-        foodGuideOptions.options.forEach(option => {
+        foodGuideOptions.options.forEach((option) => {
             console.log(`- ${option.name}: ${option.description}`);
         });
         // Step 2: User selects options (replace with actual user selection)  
-        const selectedOptions = foodGuideOptions.options.map(option => option.name); // Example selection  
+        const selectedOptions = foodGuideOptions.options.map((option) => option.name); // Example selection  
         // Step 3: Get questions based on selected options  
         const foodGuideQuestions = yield (0, utils_1.getFoodGuideQuestions)(selectedOptions, condition);
         console.log("\nQuestions to Ask:");
-        foodGuideQuestions.questions.forEach(questionObj => {
+        foodGuideQuestions.questions.forEach((questionObj) => {
             console.log(`- ${questionObj.question}`);
             console.log(`  (${questionObj.description})`);
         });

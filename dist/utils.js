@@ -38,13 +38,15 @@ exports.getFinalOutput = getFinalOutput;
 const openai_1 = require("openai");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const food_guide_model_1 = require("./model/food_guide_model");
 const config_1 = require("./config");
+const zod_1 = require("openai/helpers/zod");
 // Load environment variables from .env file  
 require('dotenv').config();
 const PROJECT_ROOT = ''; // Set your project root if needed
 const PROMPTS = path.join(PROJECT_ROOT, 'prompt_templates');
-// Initialize OpenAI client with the API key from the environment variable  
-const client = new openai_1.OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Initialize OpenAI openai with the API key from the environment variable  
+const openai = new openai_1.OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 function getPromptTemplate(promptTemplate) {
     return __awaiter(this, void 0, void 0, function* () {
         const filePath = path.join(PROMPTS, promptTemplate);
@@ -53,7 +55,6 @@ function getPromptTemplate(promptTemplate) {
 }
 function getFoodGuideOptions(userInput, condition) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         // """Gets the final output based on selected options and user answers using ChatGPT."""
         let system_message = "You are a helpful food guide assistant.";
         if (condition) {
@@ -61,14 +62,15 @@ function getFoodGuideOptions(userInput, condition) {
         }
         const promptTemplate = yield getPromptTemplate(config_1.PromptTemplate.GET_FOOD_GUIDE_OPTIONS);
         const prompt = promptTemplate.replace('user_input', userInput);
-        const response = yield client.chat.completions.create({
-            model: config_1.ModelType.GPT4O,
+        const completion = yield openai.beta.chat.completions.parse({
+            model: "gpt-4o-2024-08-06",
             messages: [
-                { role: 'system', content: system_message },
-                { role: 'user', content: prompt },
+                { role: "system", content: system_message },
+                { role: "user", content: prompt },
             ],
+            response_format: (0, zod_1.zodResponseFormat)(food_guide_model_1.FoodGuideOptions, 'food_guide_options'),
         });
-        const responseContent = (_a = response.choices[0].message) === null || _a === void 0 ? void 0 : _a.content;
+        const responseContent = completion.choices[0].message.parsed;
         // Check if the response is null or not a string  
         if (!responseContent || typeof responseContent !== 'string') {
             throw new Error("Invalid response from the API.");
@@ -85,7 +87,6 @@ function getFoodGuideOptions(userInput, condition) {
 }
 function getFoodGuideQuestions(selectedOptions, condition) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         // """Gets the final output based on selected options and user answers using ChatGPT."""
         let system_message = "You are a helpful food guide assistant.";
         if (condition) {
@@ -94,14 +95,15 @@ function getFoodGuideQuestions(selectedOptions, condition) {
         const selectedOptionsStr = selectedOptions.join(', ');
         const promptTemplate = yield getPromptTemplate(config_1.PromptTemplate.GET_FOOD_GUIDE_QUESTIONS);
         const prompt = promptTemplate.replace('selected_options', selectedOptionsStr);
-        const response = yield client.chat.completions.create({
+        const completion = yield openai.beta.chat.completions.parse({
             model: config_1.ModelType.GPT4O,
             messages: [
-                { role: 'system', content: system_message },
-                { role: 'user', content: prompt },
+                { role: "system", content: system_message },
+                { role: "user", content: prompt },
             ],
+            response_format: (0, zod_1.zodResponseFormat)(food_guide_model_1.FoodGuideQuestions, 'food_guide_questions'),
         });
-        const responseContent = (_a = response.choices[0].message) === null || _a === void 0 ? void 0 : _a.content;
+        const responseContent = completion.choices[0].message.parsed;
         // Check if the response is null or not a string  
         if (!responseContent || typeof responseContent !== 'string') {
             throw new Error("Invalid response from the API.");
@@ -119,18 +121,23 @@ function getFoodGuideQuestions(selectedOptions, condition) {
 }
 function getFinalOutput(selectedOptions, userAnswers, condition) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
+        // """Gets the final output based on selected options and user answers using ChatGPT."""
+        let system_message = "You are a helpful food guide assistant.";
+        if (condition) {
+            system_message += `\nHere are some of the conditions that you must keep while generating a response:\n${condition}`;
+        }
         const foodGuideQuestions = yield getFoodGuideQuestions(selectedOptions, condition);
         const userAnswersStr = foodGuideQuestions.questions.map((q, i) => `${q.question}: "${userAnswers[i]}"`).join('\n');
         const promptTemplate = yield getPromptTemplate(config_1.PromptTemplate.GET_FINAL_OUTPUT);
         const prompt = promptTemplate.replace('user_answers', userAnswersStr);
-        const response = yield client.chat.completions.create({
+        const completion = yield openai.beta.chat.completions.parse({
             model: config_1.ModelType.GPT4O,
             messages: [
-                { role: 'system', content: 'You are a helpful food guide assistant.' },
-                { role: 'user', content: prompt },
+                { role: "system", content: system_message },
+                { role: "user", content: prompt },
             ],
+            response_format: (0, zod_1.zodResponseFormat)(food_guide_model_1.FoodGuideFinalOutput, 'food_guide_final_output'),
         });
-        return (_a = response.choices[0].message) === null || _a === void 0 ? void 0 : _a.content;
+        return completion.choices[0].message.parsed;
     });
 }
