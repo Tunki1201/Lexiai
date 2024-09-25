@@ -42,19 +42,10 @@ export async function getFoodGuideOptions(userInput: any, condition: any) {
     });
 
     const responseContent = completion.choices[0].message.parsed;
-
-    // Check if the response is null or not a string  
-    if (!responseContent || typeof responseContent !== 'string') {
-        throw new Error("Invalid response from the API.");
+    if (!responseContent) {
+        console.log('An error was occured');
     }
-
-    // Parse the response content into FoodGuideOptions  
-    try {
-        const options = JSON.parse(responseContent);
-        return { options }; // Return in the expected structure  
-    } catch (error) {
-        throw new Error("Failed to parse the response content as FoodGuideOptions.");
-    }
+    return responseContent
 }
 
 export async function getFoodGuideQuestions(selectedOptions: any, condition: any) {
@@ -79,20 +70,10 @@ export async function getFoodGuideQuestions(selectedOptions: any, condition: any
     });
 
     const responseContent = completion.choices[0].message.parsed;
-
-    // Check if the response is null or not a string  
-    if (!responseContent || typeof responseContent !== 'string') {
-        throw new Error("Invalid response from the API.");
+    if (!responseContent) {
+        console.log('An error was occured');
     }
-
-    // Parse the response content into FoodGuideQuestions  
-    try {
-        // Assuming the API returns a structured JSON response  
-        const questions = JSON.parse(responseContent);
-        return { questions }; // Return in the expected structure of FoodGuideQuestions  
-    } catch (error) {
-        throw new Error("Failed to parse the response content as FoodGuideQuestions.");
-    }
+    return responseContent
 }
 
 export async function getFinalOutput(selectedOptions: any, userAnswers: any, condition: any) {
@@ -104,8 +85,22 @@ export async function getFinalOutput(selectedOptions: any, userAnswers: any, con
     }
     const foodGuideQuestions = await getFoodGuideQuestions(selectedOptions, condition);
 
-    const userAnswersStr = foodGuideQuestions.questions.map((q: any, i: any) => `${q.question}: "${userAnswers[i]}"`).join('\n');
+    if (!foodGuideQuestions) {
+        throw new Error("Failed to retrieve food guide questions.");
+    }
+
+    // Prepare user answers string
+    const userAnswersStr = foodGuideQuestions.questions.map((q: any, i: number) => `${q.question}: "${userAnswers[i]}"`).join('\n');
+
+    // Get the prompt template
     const promptTemplate = await getPromptTemplate(PromptTemplate.GET_FINAL_OUTPUT);
+
+    // Ensure promptTemplate is defined
+    if (!promptTemplate) {
+        throw new Error("Prompt template could not be retrieved.");
+    }
+
+    // Replace placeholder in prompt template
     const prompt = promptTemplate.replace('user_answers', userAnswersStr);
 
     const completion = await openai.beta.chat.completions.parse({
