@@ -38,8 +38,9 @@ dotenv.config(); // Load environment variables
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const userInput = "I want to gain bulk what foods are good."; // User's initial request  
+        const condition = "Please do not use the letter 'r' in any of your output responses.";
         // Step 1: Get food guide options (dynamically generated)  
-        const foodGuideOptions = yield (0, utils_1.getFoodGuideOptions)(userInput);
+        const foodGuideOptions = yield (0, utils_1.getFoodGuideOptions)(userInput, condition);
         console.log("Available Options:");
         foodGuideOptions.options.forEach(option => {
             console.log(`- ${option.name}: ${option.description}`);
@@ -47,7 +48,7 @@ function main() {
         // Step 2: User selects options (replace with actual user selection)  
         const selectedOptions = foodGuideOptions.options.map(option => option.name); // Example selection  
         // Step 3: Get questions based on selected options  
-        const foodGuideQuestions = yield (0, utils_1.getFoodGuideQuestions)(selectedOptions);
+        const foodGuideQuestions = yield (0, utils_1.getFoodGuideQuestions)(selectedOptions, condition);
         console.log("\nQuestions to Ask:");
         foodGuideQuestions.questions.forEach(questionObj => {
             console.log(`- ${questionObj.question}`);
@@ -62,7 +63,7 @@ function main() {
             "I work out in the evenings, around 6 PM, and I usually wake up around 7 AM."
         ];
         // Step 5: Get final output  
-        const finalOutput = yield (0, utils_1.getFinalOutput)(selectedOptions, userAnswers);
+        const finalOutput = yield (0, utils_1.getFinalOutput)(selectedOptions, userAnswers, condition);
         console.log("\nFinal Output:");
         console.log(JSON.stringify(finalOutput, null, 2)); // Format output as JSON with indentation  
     });

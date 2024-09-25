@@ -51,15 +51,20 @@ function getPromptTemplate(promptTemplate) {
         return fs.promises.readFile(filePath, 'utf-8');
     });
 }
-function getFoodGuideOptions(userInput) {
+function getFoodGuideOptions(userInput, condition) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
+        // """Gets the final output based on selected options and user answers using ChatGPT."""
+        let system_message = "You are a helpful food guide assistant.";
+        if (condition) {
+            system_message += `\nHere are some of the conditions that you must keep while generating a response:\n${condition}`;
+        }
         const promptTemplate = yield getPromptTemplate(config_1.PromptTemplate.GET_FOOD_GUIDE_OPTIONS);
         const prompt = promptTemplate.replace('user_input', userInput);
         const response = yield client.chat.completions.create({
             model: config_1.ModelType.GPT4O,
             messages: [
-                { role: 'system', content: 'You are a helpful food guide assistant.' },
+                { role: 'system', content: system_message },
                 { role: 'user', content: prompt },
             ],
         });
@@ -78,16 +83,21 @@ function getFoodGuideOptions(userInput) {
         }
     });
 }
-function getFoodGuideQuestions(selectedOptions) {
+function getFoodGuideQuestions(selectedOptions, condition) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
+        // """Gets the final output based on selected options and user answers using ChatGPT."""
+        let system_message = "You are a helpful food guide assistant.";
+        if (condition) {
+            system_message += `\nHere are some of the conditions that you must keep while generating a response:\n${condition}`;
+        }
         const selectedOptionsStr = selectedOptions.join(', ');
         const promptTemplate = yield getPromptTemplate(config_1.PromptTemplate.GET_FOOD_GUIDE_QUESTIONS);
         const prompt = promptTemplate.replace('selected_options', selectedOptionsStr);
         const response = yield client.chat.completions.create({
             model: config_1.ModelType.GPT4O,
             messages: [
-                { role: 'system', content: 'You are a helpful food guide assistant.' },
+                { role: 'system', content: system_message },
                 { role: 'user', content: prompt },
             ],
         });
@@ -107,10 +117,10 @@ function getFoodGuideQuestions(selectedOptions) {
         }
     });
 }
-function getFinalOutput(selectedOptions, userAnswers) {
+function getFinalOutput(selectedOptions, userAnswers, condition) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
-        const foodGuideQuestions = yield getFoodGuideQuestions(selectedOptions);
+        const foodGuideQuestions = yield getFoodGuideQuestions(selectedOptions, condition);
         const userAnswersStr = foodGuideQuestions.questions.map((q, i) => `${q.question}: "${userAnswers[i]}"`).join('\n');
         const promptTemplate = yield getPromptTemplate(config_1.PromptTemplate.GET_FINAL_OUTPUT);
         const prompt = promptTemplate.replace('user_answers', userAnswersStr);

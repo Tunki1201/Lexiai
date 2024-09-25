@@ -20,13 +20,20 @@ async function getPromptTemplate(promptTemplate: PromptTemplate): Promise<string
 }
 
 export async function getFoodGuideOptions(userInput: string, condition: string): Promise<FoodGuideOptions> {
+
+    // """Gets the final output based on selected options and user answers using ChatGPT."""
+    let system_message = "You are a helpful food guide assistant."
+    if (condition) {
+        system_message += `\nHere are some of the conditions that you must keep while generating a response:\n${condition}`
+
+    }
     const promptTemplate = await getPromptTemplate(PromptTemplate.GET_FOOD_GUIDE_OPTIONS);
     const prompt = promptTemplate.replace('user_input', userInput);
 
     const response = await client.chat.completions.create({
         model: ModelType.GPT4O,
         messages: [
-            { role: 'system', content: 'You are a helpful food guide assistant.' },
+            { role: 'system', content: system_message },
             { role: 'user', content: prompt },
         ],
     });
@@ -52,7 +59,7 @@ export async function getFoodGuideQuestions(selectedOptions: string[], condition
     // """Gets the final output based on selected options and user answers using ChatGPT."""
     let system_message = "You are a helpful food guide assistant."
     if (condition) {
-        system_message += "\nHere are some of the conditions that you must keep while generating a response:\n{condition}"
+        system_message += `\nHere are some of the conditions that you must keep while generating a response:\n${condition}`
 
     }
     const selectedOptionsStr = selectedOptions.join(', ');
